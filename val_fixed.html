@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>என் மனைவிக்காக❤️</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&f[]=playfair-display@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0c0a09;
+            --primary-color: #f43f5e;
+            --secondary-color: #ec4899;
+            --accent-glow: rgba(236, 72, 153, 0.5);
+        }
+
+        body {
+            font-family: 'Satoshi', sans-serif;
+            background-color: var(--bg-color);
+            color: #f9fafb;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* 3D & Background Styling */
+        #aurora-background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.6;
+            background: radial-gradient(at 20% 20%, hsla(333,70%,55%,.4) 0px, transparent 50%), 
+                        radial-gradient(at 80% 20%, hsla(282, 82%, 54%, .3) 0px, transparent 50%);
+            animation: aurora-flow 20s infinite linear;
+        }
+        @keyframes aurora-flow { 0% { transform: rotate(0deg) scale(1.2); } 100% { transform: rotate(360deg) scale(1.2); } }
+        #canvas-container { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
+
+        /* Page Layouts */
+        .step-section {
+            display: none; position: relative; z-index: 10;
+            width: 100%; min-height: 100vh;
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; text-align: center;
+        }
+        .active { display: flex; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .text-gradient {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(90deg, #f9a8d4, #f472b6, #fff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* Bento Grid Style */
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 800px; }
+        .bento-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; padding: 1.5rem; text-align: left; }
+        @media (max-width: 768px) { .bento-grid { grid-template-columns: 1fr; } }
+
+        /* Envelope & Letter Logic */
+        .envelope { width: 280px; height: 180px; background: var(--primary-color); border-radius: 10px; position: relative; }
+        .flap { position: absolute; top: 0; left: 0; border-left: 140px solid transparent; border-right: 140px solid transparent; border-top: 100px solid #ff758f; transition: 0.6s; z-index: 5; transform-origin: top; }
+        .open .flap { transform: rotateX(180deg); }
+        .letter-paper { 
+            background: white; color: #333; padding: 2.5rem; border-radius: 5px; 
+            background-image: repeating-linear-gradient(white 0px, white 24px, #e9ecef 25px);
+            line-height: 25px; font-family: 'Dancing Script', cursive; font-size: 1.5rem; text-align: left;
+        }
+
+        /* Sliding Gallery */
+        .gallery { --d: 12s; display: grid; place-items: center; width: 220px; margin: 0 auto; }
+        .gallery img { grid-area: 1/1; width: 100%; aspect-ratio: 1; object-fit: cover; border: 8px solid white; animation: slide var(--d) infinite, z-order var(--d) infinite steps(1); border-radius: 10px; }
+        @keyframes slide { 10% { transform: translateX(120%) rotate(var(--r)); } 0%, 100%, 20% { transform: translateX(0%) rotate(var(--r)); } }
+        @keyframes z-order { 10%, 20% { z-index: 1; } 80% { z-index: 2; } }
+
+        .btn-main {
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            padding: 14px 40px; border-radius: 99px; font-weight: bold; transition: 0.3s;
+            color: white; border: none; cursor: pointer;
+        }
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 0 25px var(--accent-glow); }
+        #noBtn { position: relative; transition: 0.15s ease-out; }
+
+        /* Custom scrollbar for a cleaner look */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #f43f5e;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="aurora-background"></div>
+    <div id="canvas-container"></div>
+
+    <section id="step1" class="step-section active">
+        <div class="glass-card p-10 max-w-lg">
+            <h1 class="text-6xl font-bold text-gradient mb-6">ஹாய் தனிஸ்கா மா,</h1>
+            <p class="text-gray-300 text-lg mb-8">என் மனைவிக்காகவே கட்டப்பட்ட, வேறு யாருக்கும் தெரியாத இந்த சின்னஞ்சிறு உலகத்தைப் பார்க்கத் தயாரா</p>
+            <button onclick="goToStep(2)" class="btn-main text-white">போகலாம்</button>
+        </div>
+    </section>
+
+    <section id="step2" class="step-section">
+        <h2 class="text-4xl font-bold text-gradient mb-8">உன்னைப் பற்றி எனக்குப் பிடித்த விஷயங்கள்</h2>
+        <div class="bento-grid">
+            <div class="bento-item col-span-2">
+                <h3 class="text-pink-300 font-bold text-xl mb-2">✨ உங்கள் அன்பான ஆன்மா</h3>
+                <p class="text-gray-400">உங்களைச் சுற்றியுள்ள அனைவரையும் நீங்கள் கவனித்துக் கொள்ளும் விதம் என் இதயத்தை உருக்க வைக்கிறது.</p>
+            </div>
+            <div class="bento-item">
+                <h3 class="text-pink-300 font-bold text-xl mb-2">😊 அந்தப் புன்னகை</h3>
+                <p class="text-gray-400">என் முழு உலகத்தை நீ பிரகாசப்படுத்தியது.</p>
+            </div>
+            <div class="bento-item col-span-3">
+                <h3 class="text-pink-300 font-bold text-xl mb-2">🌟 உங்கள் பிரகாசமான ஆவி</h3>
+                <p class="text-gray-400">உங்களைச் சுற்றி இருப்பது எல்லாவற்றையும் சாத்தியமாக்கவும் உற்சாகமாக்கவும் செய்கிறது.</p>
+            </div>
+        </div>
+        <button onclick="goToStep(3)" class="btn-main text-white mt-10">அடுத்த ஆச்சரியம்</button>
+    </section>
+
+    <section id="step3" class="step-section">
+        <div class="glass-card p-8">
+            <h2 class="text-3xl font-bold text-gradient mb-4">என் இதயத்தைக் கண்டுபிடி</h2>
+            <p class="text-gray-400 mb-8">இந்தப் பரிசுகளுக்குள் 3 இதயங்கள் மறைந்திருக்கின்றன. அவற்றைக் கண்டுபிடிக்க முடியுமா</p>
+            <div id="game-grid" class="grid grid-cols-4 gap-4 max-w-sm mx-auto"></div>
+            <p class="mt-6 text-xl">Hearts <span id="heart-count" class="text-pink-500 font-bold">0</span>/3</p>
+        </div>
+    </section>
+
+    <section id="step4" class="step-section">
+        <div id="envelope-reveal">
+            <div class="envelope mx-auto cursor-pointer" id="env" onclick="openEnv()">
+                <div class="flap"></div>
+                <div class="flex items-center justify-center h-full text-white text-5xl">💌</div>
+            </div>
+            <h2 class="text-3xl font-bold text-gradient mt-12">எனது கடிதத்தைத் திறக்க தட்டவும்</h2>
+        </div>
+
+        <div id="letter-content" class="hidden w-full max-w-2xl px-4 flex flex-col items-center">
+            <div class="letter-paper shadow-2xl mx-auto overflow-y-auto max-h-[65vh] w-full custom-scrollbar">
+                <h2 class="text-4xl text-pink-600 mb-6 font-bold">My Dearest Wife,</h2>
+                
+                <p class="mb-4">Loving you wasn't a moment. It was a slow, beautiful realization that my happiest future somehow had your name written all over it.</p>
+                
+                <p class="mb-4">Every day with you is a new adventure, a new reason to smile, and a new chapter in our love story. I am endlessly grateful for your love, your laughter, and the way you make every ordinary moment extraordinary.</p>
+                
+                <p class="mb-4">Thank you for being my partner, my confidant, and the love of my life. I look forward to creating countless more memories together, hand in hand, heart to heart.</p>
+                
+                <p class="mb-2 italic">If I could choose again, in every lifetime, in every version of this world…</p>
+                <p class="mb-1 font-bold">I would still find you.</p>
+                <p class="mb-1 font-bold">And I would still choose you.</p>
+                <p class="mb-4 font-bold">Every single time.</p>
+                
+                <div class="text-right mt-6 font-bold text-2xl">— Forever Your Husband</div>
+            </div>
+        
+            <div class="mt-8 w-full flex justify-center pb-10">
+                <button onclick="goToStep(6)" class="btn-main text-white w-full max-w-xs">
+                    Next Question
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="step6" class="step-section">
+        <div class="glass-card p-10 max-w-sm">
+            <h1 class="text-4xl font-bold text-pink-500 mb-4 text-gradient">Wait...</h1>
+            <p class="text-xl mb-8 font-bold">Will you be my Valentine 🌹</p>
+            <div class="flex gap-4">
+                <button onclick="handleYes()" class="btn-main flex-1 text-white">YES! 💖</button>
+                <button id="noBtn" class="bg-white/10 px-8 py-3 rounded-full flex-1 border border-white/30 text-white cursor-pointer">No 😜</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="step7" class="step-section">
+        <div class="glass-card p-10 max-w-2xl text-center">
+            <div class="text-6xl mb-6">✨</div>
+            <h2 class="text-4xl font-bold text-gradient mb-6">One More Thing...</h2>
+            
+            <p id="final-personal-message" class="text-gray-200 text-2xl italic leading-relaxed font-serif">
+                I knew you'd say yes! You make me the luckiest person in the world. I can't wait to celebrate every day with you.
+            </p>
+            
+            <div class="mt-10 text-pink-400 font-bold tracking-widest uppercase text-sm">Forever Your Husband</div>
+        </div>
+    </section>
+
+
+    <script>
+        /* NAVIGATION LOGIC */
+        function goToStep(n) {
+            gsap.to(".step-section.active", { opacity: 0, scale: 0.9, duration: 0.5, onComplete: () => {
+                document.querySelectorAll(".step-section").forEach(s => s.classList.remove("active"));
+                const next = document.getElementById("step" + n);
+                next.classList.add("active");
+                gsap.fromTo(next, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.8 });
+            }});
+        }
+
+        /* 3D HEARTS LOGIC */
+        let scene, camera, renderer, hearts3D = [];
+        function initThree() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 30;
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById("canvas-container").appendChild(renderer.domElement);
+
+            const heartShape = new THREE.Shape();
+            heartShape.moveTo(25, 25); heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0); heartShape.bezierCurveTo(-30, 0, -30, 35, -30, 35); heartShape.bezierCurveTo(-30, 55, -10, 77, 25, 95); heartShape.bezierCurveTo(60, 77, 80, 55, 80, 35); heartShape.bezierCurveTo(80, 35, 80, 0, 50, 0); heartShape.bezierCurveTo(35, 0, 25, 25, 25, 25);
+            const geometry = new THREE.ExtrudeGeometry(heartShape, { depth: 4, bevelEnabled: true });
+
+            for(let i = 0; i < 15; i++) {
+                const mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({ color: 0xf43f5e, transparent: true, opacity: 0.4 }));
+                mesh.scale.set(0.03, 0.03, 0.03);
+                mesh.position.set((Math.random() - 0.5) * 60, (Math.random() - 0.5) * 60, (Math.random() - 0.5) * 30);
+                scene.add(mesh);
+                hearts3D.push(mesh);
+            }
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            animate();
+        }
+        function animate() { requestAnimationFrame(animate); hearts3D.forEach(h => { h.rotation.y += 0.01; }); renderer.render(scene, camera); }
+
+        /* GAME LOGIC */
+        let found = 0;
+        const gameGrid = document.getElementById("game-grid");
+        const heartPos = new Set([2, 5, 11]);
+        for(let i = 0; i < 16; i++) {
+            const el = document.createElement("div");
+            el.className = "glass-card p-2 flex items-center justify-center cursor-pointer text-2xl";
+            el.innerText = "🎁";
+            el.onclick = () => {
+                if(heartPos.has(i)) {
+                    el.innerText = "❤️";
+                    found++;
+                    document.getElementById("heart-count").innerText = found;
+                    if(found === 3) setTimeout(() => goToStep(4), 1000);
+                } else {
+                    el.style.opacity = "0.1";
+                }
+                el.onclick = null;
+            };
+            gameGrid.appendChild(el);
+        }
+
+        /* ENVELOPE LOGIC */
+        function openEnv() {
+            document.getElementById("env").classList.add("open");
+            setTimeout(() => {
+                document.getElementById("envelope-reveal").classList.add("hidden");
+                document.getElementById("letter-content").classList.remove("hidden");
+                gsap.from("#letter-content", { opacity: 0, y: 50, duration: 1 });
+            }, 1000);
+        }
+
+        /* PROPOSAL & FINAL STEP LOGIC */
+        const noBtn = document.getElementById("noBtn");
+        noBtn.addEventListener("mouseenter", () => {
+            gsap.to(noBtn, { x: Math.random() * 200 - 100, y: Math.random() * 200 - 100, duration: 0.2 });
+        });
+
+        function handleYes() {
+            /* Confetti Blast */
+            confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 }, colors: ["#f43f5e", "#ec4899", "#ffffff"] });
+
+            /* Transition to Final Page */
+            setTimeout(() => {
+                goToStep(7);
+            }, 2000);
+        }
+
+        window.onload = initThree;
+    </script>
+</body>
+</html>
